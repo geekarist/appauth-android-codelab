@@ -12,193 +12,194 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.codelabs.appauth;
+package com.google.codelabs.appauth
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.AppCompatTextView;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import net.openid.appauth.AuthState;
-import net.openid.appauth.AuthorizationRequest;
-import net.openid.appauth.AuthorizationService;
-import net.openid.appauth.AuthorizationServiceConfiguration;
-import net.openid.appauth.TokenResponse;
-import org.json.JSONException;
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.AppCompatButton
+import android.support.v7.widget.AppCompatTextView
+import android.text.TextUtils
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationRequest
+import net.openid.appauth.AuthorizationService
+import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.TokenResponse
+import org.json.JSONException
 
-public class MainActivity extends AppCompatActivity {
-    
-    private static final String SHARED_PREFERENCES_NAME = "AuthStatePreference";
-    private static final String AUTH_STATE = "AUTH_STATE";
-    private static final String USED_INTENT = "USED_INTENT";
-    
-    MainApplication mMainApplication;
-    
+class MainActivity : AppCompatActivity() {
+
+    internal var mMainApplication: MainApplication
+
     // state
-    AuthState mAuthState;
-    
+    internal var mAuthState: AuthState? = null
+
     // views
-    AppCompatButton mAuthorize;
-    AppCompatButton mMakeApiCall;
-    AppCompatButton mSignOut;
-    AppCompatTextView mGivenName;
-    AppCompatTextView mFamilyName;
-    AppCompatTextView mFullName;
-    ImageView mProfileView;
-    
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mMainApplication = (MainApplication) getApplication();
-        mAuthorize = findViewById(R.id.authorize);
-        mMakeApiCall = findViewById(R.id.makeApiCall);
-        mSignOut = findViewById(R.id.signOut);
-        mGivenName = findViewById(R.id.givenName);
-        mFamilyName = findViewById(R.id.familyName);
-        mFullName = findViewById(R.id.fullName);
-        mProfileView = findViewById(R.id.profileImage);
-        
-        enablePostAuthorizationFlows();
-        
+    internal var mAuthorize: AppCompatButton
+    internal var mMakeApiCall: AppCompatButton
+    internal var mSignOut: AppCompatButton
+    internal var mGivenName: AppCompatTextView
+    internal var mFamilyName: AppCompatTextView
+    internal var mFullName: AppCompatTextView
+    internal var mProfileView: ImageView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        mMainApplication = application as MainApplication
+        mAuthorize = findViewById(R.id.authorize)
+        mMakeApiCall = findViewById(R.id.makeApiCall)
+        mSignOut = findViewById(R.id.signOut)
+        mGivenName = findViewById(R.id.givenName)
+        mFamilyName = findViewById(R.id.familyName)
+        mFullName = findViewById(R.id.fullName)
+        mProfileView = findViewById(R.id.profileImage)
+
+        enablePostAuthorizationFlows()
+
         // wire click listeners
-        mAuthorize.setOnClickListener(new AuthorizeListener());
+        mAuthorize.setOnClickListener(AuthorizeListener())
     }
-    
-    private void enablePostAuthorizationFlows() {
-        mAuthState = restoreAuthState();
-        if (mAuthState != null && mAuthState.isAuthorized()) {
-            if (mMakeApiCall.getVisibility() == View.GONE) {
-                mMakeApiCall.setVisibility(View.VISIBLE);
-                mMakeApiCall.setOnClickListener(new MakeApiCallListener(this,
-                                                                        mAuthState,
-                                                                        new AuthorizationService(this)));
+
+    override fun onStart() {
+        super.onStart()
+        manageIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        manageIntent(intent)
+    }
+
+    private fun manageIntent(intent: Intent?) {
+        if (intent != null) {
+            val action = intent.action
+            when (action) {
+                "TODO" -> {
+                }
             }
-            if (mSignOut.getVisibility() == View.GONE) {
-                mSignOut.setVisibility(View.VISIBLE);
-                mSignOut.setOnClickListener(new SignOutListener(this));
+        }
+    }
+
+    private fun enablePostAuthorizationFlows() {
+        mAuthState = restoreAuthState()
+        if (mAuthState != null && mAuthState!!.isAuthorized) {
+            if (mMakeApiCall.visibility == View.GONE) {
+                mMakeApiCall.visibility = View.VISIBLE
+                mMakeApiCall.setOnClickListener(MakeApiCallListener(this,
+                        mAuthState!!,
+                        AuthorizationService(this)))
+            }
+            if (mSignOut.visibility == View.GONE) {
+                mSignOut.visibility = View.VISIBLE
+                mSignOut.setOnClickListener(SignOutListener(this))
             }
         } else {
-            mMakeApiCall.setVisibility(View.GONE);
-            mSignOut.setVisibility(View.GONE);
+            mMakeApiCall.visibility = View.GONE
+            mSignOut.visibility = View.GONE
         }
     }
-    
+
     /**
-     * Exchanges the code, for the {@link TokenResponse}.
+     * Exchanges the code, for the [TokenResponse].
      *
-     * @param intent represents the {@link Intent} from the Custom Tabs or the System Browser.
+     * @param intent represents the [Intent] from the Custom Tabs or the System Browser.
      */
-    private void handleAuthorizationResponse(@NonNull Intent intent) {
-        
+    private fun handleAuthorizationResponse(intent: Intent) {
+
         // code from the step 'Handle the Authorization Response' goes here.
-        
+
     }
-    
-    private void persistAuthState(@NonNull AuthState authState) {
+
+    private fun persistAuthState(authState: AuthState) {
         getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit()
-                                                                           .putString(AUTH_STATE,
-                                                                                      authState.jsonSerializeString())
-                                                                           .apply();
-        enablePostAuthorizationFlows();
+                .putString(AUTH_STATE,
+                        authState.jsonSerializeString())
+                .apply()
+        enablePostAuthorizationFlows()
     }
-    
-    private void clearAuthState() {
+
+    private fun clearAuthState() {
         getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .remove(AUTH_STATE)
-            .apply();
+                .edit()
+                .remove(AUTH_STATE)
+                .apply()
     }
-    
-    @Nullable
-    private AuthState restoreAuthState() {
-        String jsonString = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-            .getString(AUTH_STATE, null);
+
+    private fun restoreAuthState(): AuthState? {
+        val jsonString = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+                .getString(AUTH_STATE, null)
         if (!TextUtils.isEmpty(jsonString)) {
             try {
-                return AuthState.jsonDeserialize(jsonString);
-            } catch (JSONException jsonException) {
+                return AuthState.jsonDeserialize(jsonString!!)
+            } catch (jsonException: JSONException) {
                 // should never happen
             }
+
         }
-        return null;
+        return null
     }
-    
+
     /**
      * Kicks off the authorization flow.
      */
-    public static class AuthorizeListener implements Button.OnClickListener {
-        
-        @Override
-        public void onClick(View view) {
-            
-            AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(
-                Uri.parse("https://accounts.google.com/o/oauth2/v2/auth"),
-                Uri.parse("https://www.googleapis.com/oauth2/v4/token")
-            );
-            
-            Uri redirectUri = Uri.parse("com.google.codelabs.appauth:/oauth2callback");
-            
-            AuthorizationRequest request = new AuthorizationRequest.Builder(
-                config,
-                "511828570984-fuprh0cm7665emlne3rnf9pk34kkn86s.apps.googleusercontent.com",
-                "code",
-                redirectUri
+    class AuthorizeListener : Button.OnClickListener {
+
+        override fun onClick(view: View) {
+
+            val config = AuthorizationServiceConfiguration(
+                    Uri.parse("https://accounts.google.com/o/oauth2/v2/auth"),
+                    Uri.parse("https://www.googleapis.com/oauth2/v4/token")
+            )
+
+            val redirectUri = Uri.parse("com.google.codelabs.appauth:/oauth2callback")
+
+            val request = AuthorizationRequest.Builder(
+                    config,
+                    "511828570984-fuprh0cm7665emlne3rnf9pk34kkn86s.apps.googleusercontent.com",
+                    "code",
+                    redirectUri
             ).setScopes("profile")
-             .build();
-            
-            Context context = view.getContext().getApplicationContext();
-            AuthorizationService service = new AuthorizationService(context);
-            Intent intent = new Intent("com.google.codelabs.appauth.HANDLE_AUTHORIZATION_RESPONSE");
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, request.hashCode(), intent, 0);
-            service.performAuthorizationRequest(request, pendingIntent);
+                    .build()
+
+            val context = view.context.applicationContext
+            val service = AuthorizationService(context)
+            val intent = Intent("com.google.codelabs.appauth.HANDLE_AUTHORIZATION_RESPONSE")
+            val pendingIntent = PendingIntent.getActivity(context, request.hashCode(), intent, 0)
+            service.performAuthorizationRequest(request, pendingIntent)
         }
     }
-    
-    public static class SignOutListener implements Button.OnClickListener {
-        
-        private final MainActivity mMainActivity;
-        
-        SignOutListener(@NonNull MainActivity mainActivity) {
-            mMainActivity = mainActivity;
-        }
-        
-        @Override
-        public void onClick(View view) {
-            mMainActivity.mAuthState = null;
-            mMainActivity.clearAuthState();
-            mMainActivity.enablePostAuthorizationFlows();
+
+    class SignOutListener internal constructor(private val mMainActivity: MainActivity) : Button.OnClickListener {
+
+        override fun onClick(view: View) {
+            mMainActivity.mAuthState = null
+            mMainActivity.clearAuthState()
+            mMainActivity.enablePostAuthorizationFlows()
         }
     }
-    
-    public static class MakeApiCallListener implements Button.OnClickListener {
-        
-        private final MainActivity mMainActivity;
-        private AuthState mAuthState;
-        private AuthorizationService mAuthorizationService;
-        
-        MakeApiCallListener(@NonNull MainActivity mainActivity,
-                            @NonNull AuthState authState,
-                            @NonNull AuthorizationService authorizationService) {
-            mMainActivity = mainActivity;
-            mAuthState = authState;
-            mAuthorizationService = authorizationService;
-        }
-        
-        @Override
-        public void onClick(View view) {
-            
+
+    class MakeApiCallListener internal constructor(private val mMainActivity: MainActivity,
+                                                   private val mAuthState: AuthState,
+                                                   private val mAuthorizationService: AuthorizationService) : Button.OnClickListener {
+
+        override fun onClick(view: View) {
+
             // code from the section 'Making API Calls' goes here
-            
+
         }
+    }
+
+    companion object {
+
+        private val SHARED_PREFERENCES_NAME = "AuthStatePreference"
+        private val AUTH_STATE = "AUTH_STATE"
+        private val USED_INTENT = "USED_INTENT"
     }
 }
